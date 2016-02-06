@@ -24,13 +24,13 @@ def srt_time(self):
 str_data = open('watson.json').read()
 json_data = json.loads(str_data)
 
-# open subtitle file in write mode
-# this will create the file if it doesn't exist, or overwrite if it does
+# open subtitle file in write mode (overwrites if it already exists)
 f = open('subtitles.srt','w')
 
 # starts subtitle id counter for SRT file
 sub_id = 0
 
+# iterate through JSON array
 for x in json_data["results"]:
     for y in x["alternatives"]:
         tran_start = 0
