@@ -11,6 +11,15 @@
 import json
 import math
 
+# function to format time for SRT file
+def srt_time(self):
+    ms = (str(self).split("."))[1]
+    sec = self
+    min = sec / 60
+    hr = min / 60
+    time = "%02d:%02d:%02d,%s" % (hr, min % 60, sec % 60, ms)
+    return time
+
 # Load JSON from Watson (replace watson.json with path to JSON file)
 str_data = open('watson.json').read()
 json_data = json.loads(str_data)
@@ -65,23 +74,13 @@ for x in json_data["results"]:
 
         for x in tran_list:
 
-            # reformatting the time for SRT format (convert to function later)
-            st_ms = (str(x[2]).split("."))[1]
-            st_sec = x[2]
-            st_min = st_sec // 60
-            st_hr = st_min // 60
-            st_time = "%02d:%02d:%02d,%s" % (st_hr, st_min % 60, st_sec % 60, st_ms)
-            en_ms = (str(x[3]).split("."))[1]
-            en_sec = x[3]
-            en_min = en_sec // 60
-            en_hr = en_min // 60
-            en_time = "%02d:%02d:%02d,%s" % (en_hr, en_min % 60, en_sec % 60, en_ms)
+            # formats time for SRT format
+            st_time = srt_time(x[2])
+            en_time = srt_time(x[3])
 
-            #
+            # generates and writes block to SRT file, loops until all entries complete
             sub_block = "%s\n%s --> %s\n%s\n\n" % (x[0],st_time,en_time,x[1])
-            #
             f.write(sub_block)
 
-print "Conversion to SRT successful!"
 
 f.close()
