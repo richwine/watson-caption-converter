@@ -22,7 +22,11 @@ def srt_time(self):
 
 # Load JSON from Watson (replace watson.json with path to JSON file)
 str_data = open('watson.json').read()
-json_data = json.loads(str_data)
+try:
+    json_data = json.loads(str_data)
+except:
+    print "ERROR: The JSON is not formatted properly."
+    quit()
 
 # open subtitle file in write mode (overwrites if it already exists)
 f = open('subtitles.srt','w')
@@ -52,24 +56,28 @@ for x in json_data["results"]:
         if y["confidence"] == 0.00:
             break
         else:
-            for z in y["timestamps"]:
-                word = str(z[0])
-                custom_tran = custom_tran + "%s " % word
-                word_start = z[1]
-                if tran_start == 0 or word_start < tran_start:
-                    tran_start = word_start
-                word_end = z[2]
-                if word_end > tran_end:
-                    tran_end = word_end
-                if long_tran is True :
-                    if len(custom_tran) > max_chars :
-                        sub_id += 1
-                        tran_list.append([sub_id,custom_tran,tran_start,tran_end])
-                        custom_tran = ""
-                        tran_start = 0
-                        tran_end = 0
-            sub_id += 1
-            tran_list.append([sub_id,custom_tran,tran_start,tran_end])
+            try:
+                for z in y["timestamps"]:
+                    word = str(z[0])
+                    custom_tran = custom_tran + "%s " % word
+                    word_start = z[1]
+                    if tran_start == 0 or word_start < tran_start:
+                        tran_start = word_start
+                    word_end = z[2]
+                    if word_end > tran_end:
+                        tran_end = word_end
+                    if long_tran is True :
+                        if len(custom_tran) > max_chars :
+                            sub_id += 1
+                            tran_list.append([sub_id,custom_tran,tran_start,tran_end])
+                            custom_tran = ""
+                            tran_start = 0
+                            tran_end = 0
+                sub_id += 1
+                tran_list.append([sub_id,custom_tran,tran_start,tran_end])
+            except:
+                print 'ERROR: Cannot find timestamps in JSON. Please ensure word timestamps are enabled in Watson.'
+                quit()
 
 
         for x in tran_list:
