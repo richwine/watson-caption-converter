@@ -20,6 +20,15 @@ def srt_time(self):
     time = "%02d:%02d:%02d,%s" % (hr, min % 60, sec % 60, ms)
     return time
 
+# function to format time for VTT file
+def vtt_time(self):
+    ms = (str(self).split("."))[1]
+    sec = self
+    min = sec / 60
+    hr = min / 60
+    time = "%02d:%02d:%02d.%s" % (hr, min % 60, sec % 60, ms.ljust(3,'0'))
+    return time
+
 # Load JSON from Watson (replace watson.json with path to JSON file)
 str_data = open('watson.json').read()
 try:
@@ -28,11 +37,16 @@ except:
     print "ERROR: The JSON is not formatted properly."
     quit()
 
-# open subtitle file in write mode (overwrites if it already exists)
-f = open('subtitles.srt','w')
+# open subtitle files in write mode (overwrites if it already exists)
+f_srt = open('subtitles.srt','w')
+f_vtt = open('subtitles.vtt','w')
 
 # starts subtitle id counter for SRT file
 sub_id = 0
+
+# writes headers for VTT file and set VTT display format
+f_vtt.write("WEBVTT\n\n")
+display_vtt = "align:middle line:84%"
 
 # iterate through JSON array
 for x in json_data["results"]:
@@ -87,8 +101,18 @@ for x in json_data["results"]:
             en_time = srt_time(x[3])
 
             # generates and writes block to SRT file, loops until all entries complete
-            sub_block = "%s\n%s --> %s\n%s\n\n" % (x[0],st_time,en_time,x[1])
-            f.write(sub_block)
+            block = "%s\n%s --> %s\n%s\n\n" % (x[0],st_time,en_time,x[1])
+            f_srt.write(block)
+
+            # formats time for VTT format
+            st_time = vtt_time(x[2])
+            en_time = vtt_time(x[3])
+
+            # generates and writes block to VTT file, loops until all entries complete
+            block = "%s\n%s --> %s %s\n%s\n\n" % (x[0],st_time,en_time,display_vtt,x[1])
+            f_vtt.write(block)
 
 
-f.close()
+
+f_srt.close()
+f_vtt.close()
