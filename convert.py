@@ -29,6 +29,15 @@ def vtt_time(self):
     time = "%02d:%02d:%02d.%s" % (hr, min % 60, sec % 60, ms.ljust(3,'0'))
     return time
 
+# function to format time for VTT file
+def stl_time(self):
+    ms = (str(self).split("."))[1]
+    sec = self
+    min = sec / 60
+    hr = min / 60
+    time = "%02d:%02d:%02d.%s" % (hr, min % 60, sec % 60, ms.ljust(2,'0'))
+    return time
+
 # Load JSON from Watson (replace watson.json with path to JSON file)
 str_data = open('watson.json').read()
 try:
@@ -40,6 +49,7 @@ except:
 # open subtitle files in write mode (overwrites if it already exists)
 f_srt = open('subtitles.srt','w')
 f_vtt = open('subtitles.vtt','w')
+f_stl = open('subtitles.txt','w')
 
 # starts subtitle id counter for SRT file
 sub_id = 0
@@ -47,6 +57,11 @@ sub_id = 0
 # writes headers for VTT file and set VTT display format
 f_vtt.write("WEBVTT\n\n")
 display_vtt = "align:middle line:84%"
+
+# writes header for STL .txt file
+stl_header = """{QTtext}{timescale:100}{textBox: 0, 0, 45, 0}{font:Arial}{size:16}{backColor:0,0,0}
+{textColor:65535,65535,65535}{width:640}{height:40}{justify:Center}\n\n\n"""
+f_stl.write(stl_header)
 
 # iterate through JSON array
 for x in json_data["results"]:
@@ -112,7 +127,13 @@ for x in json_data["results"]:
             block = "%s\n%s --> %s %s\n%s\n\n" % (x[0],st_time,en_time,display_vtt,x[1])
             f_vtt.write(block)
 
+            # formats time for STL format
+            st_time = stl_time(x[2])
+            block = "[%s]\n%s\n\n" % (st_time,x[1])
+            f_stl.write(block)
+
 
 
 f_srt.close()
 f_vtt.close()
+f_stl.close()
