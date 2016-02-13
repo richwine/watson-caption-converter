@@ -17,7 +17,7 @@ def srt_time(self):
     sec = self
     min = sec / 60
     hr = min / 60
-    time = "%02d:%02d:%02d,%s" % (hr, min % 60, sec % 60, ms)
+    time = "%02d:%02d:%02d,%s" % (hr, min % 60, sec % 60, ms.ljust(3,'0'))
     return time
 
 # function to format time for VTT file
@@ -50,6 +50,7 @@ except:
 f_srt = open('subtitles.srt','w')
 f_vtt = open('subtitles.vtt','w')
 f_stl = open('subtitles.txt','w')
+f_scc = open('subtitles.scc','w')
 
 # starts subtitle id counter for SRT file
 sub_id = 0
@@ -62,6 +63,10 @@ display_vtt = "align:middle line:84%"
 stl_header = """{QTtext}{timescale:100}{textBox: 0, 0, 45, 0}{font:Arial}{size:16}{backColor:0,0,0}
 {textColor:65535,65535,65535}{width:640}{height:40}{justify:Center}\n\n\n"""
 f_stl.write(stl_header)
+
+# writes header for SCC .scc file
+scc_header = "Scenarist_SCC V1.0\n\n"
+f_scc.write(scc_header)
 
 # iterate through JSON array
 for x in json_data["results"]:
@@ -137,3 +142,4 @@ for x in json_data["results"]:
 f_srt.close()
 f_vtt.close()
 f_stl.close()
+f_scc.close()
