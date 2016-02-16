@@ -12,6 +12,17 @@ import json
 import math
 
 # function to format time for SRT file
+def format_time(time, format):
+    ms = (str(time).split("."))[1]
+    sec = time
+    min = sec / 60
+    hr = min / 60
+    if format == "srt":
+        return "%02d:%02d:%02d,%s" % (hr, min % 60, sec % 60, ms.ljust(3,'0'))
+    if format == "vtt" or "stl":
+        return "%02d:%02d:%02d.%s" % (hr, min % 60, sec % 60, ms.ljust(3,'0'))
+
+
 def srt_time(self):
     ms = (str(self).split("."))[1]
     sec = self
@@ -117,23 +128,23 @@ for x in json_data["results"]:
         for x in tran_list:
 
             # formats time for SRT format
-            st_time = srt_time(x[2])
-            en_time = srt_time(x[3])
+            st_time = format_time(x[2], "srt")
+            en_time = format_time(x[3], "srt")
 
             # generates and writes block to SRT file, loops until all entries complete
             block = "%s\n%s --> %s\n%s\n\n" % (x[0],st_time,en_time,x[1])
             f_srt.write(block)
 
             # formats time for VTT format
-            st_time = vtt_time(x[2])
-            en_time = vtt_time(x[3])
+            st_time = format_time(x[2], "vtt")
+            en_time = format_time(x[3], "vtt")
 
             # generates and writes block to VTT file, loops until all entries complete
             block = "%s\n%s --> %s %s\n%s\n\n" % (x[0],st_time,en_time,display_vtt,x[1])
             f_vtt.write(block)
 
             # formats time for STL format
-            st_time = stl_time(x[2])
+            st_time = format_time(x[2], "stl")
             block = "[%s]\n%s\n\n" % (st_time,x[1])
             f_stl.write(block)
 
